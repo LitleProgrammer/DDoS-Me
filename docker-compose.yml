@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # MongoDB Service
+  mongodb:
+    image: mongo:latest
+    container_name: ddosme_mongodb
+    ports:
+      - "29046:27017" # Expose MongoDB on port 29046
+    volumes:
+      - mongodb_data:/data/db # Persist MongoDB data
+    networks:
+      - ddosme_network
+
+  # Your Application Service
+  ai-proxy:
+    build: ./DdosMe-AIProxy
+    container_name: ddosme_proxy
+    ports:
+      - "3456:3456" # Expose your proxy server
+    depends_on:
+      - mongodb # Ensure MongoDB is started first
+    networks:
+      - ddosme_network
+    environment:
+      - MONGO_URI=mongodb://ddosme_mongodb:27017/ddosMe # Set MongoDB URI for your app
+
+  target-server:
+    build: ./DdosMe-backend
+    container_name: ddosme_backend
+    #ports: #- "3246:3246" # Expose your backend server
+    depends_on:
+      - mongodb # Ensure MongoDB is started first
+    networks:
+      - ddosme_network
+    environment:
+      - MONGO_URI=mongodb://ddosme_mongodb:27017/ddosMe # Set MongoDB URI for your app
+    mem_limit: 512m
+    cpus: 0.5
+
+volumes:
+  mongodb_data:
+    # MongoDB volume to persist data
+
+networks:
+  ddosme_network:
+    driver: bridge

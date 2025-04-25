@@ -1,0 +1,19 @@
+.sparkle {
+    opacity: 0;
+    animation-name: sparkleMove;
+    animation-timing-function: ease-out;
+    animation-iteration-count: infinite;
+    box-shadow: 0 0 8px currentColor;
+}
+
+@keyframes sparkleMove {
+    0% {
+        transform: translate(0, 0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(var(--x), var(--y));
+        opacity: 0;
+    }
+}
