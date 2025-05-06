@@ -26,8 +26,8 @@ database.connect(mongoUrl);
 
 //docker run -d --network ddosnw --name ddosme_mongodb -v ddos_volume:/data/db -e MONGO_INIT_DATABASE=ddosMe -p 29046:27017 mongo:latest
 app.post('/ddosme', (req, res) => {
-    const cpuMs = Math.floor(Math.random() * 250);     // 0–200 ms CPU
-    const diskKb = Math.floor(Math.random() * 700);    // 0–500 KB disk
+    const cpuMs = Math.floor(Math.random() * 30);     // 0–200 ms CPU
+    const diskKb = Math.floor(Math.random() * 500);    // 0–500 KB disk
     const memoryMb = Math.floor(Math.random() * 20);    // 0–5 MB RAM
 
     simulateCpuLoad(cpuMs);

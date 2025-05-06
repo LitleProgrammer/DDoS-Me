@@ -52,6 +52,34 @@ const initExperimentVars = async () => {
 }
 initExperimentVars();
 
+
+
+//Caching functionality
+const writeBuffer = [];
+
+setInterval(async () => {
+    if (writeBuffer.length === 0) return;
+
+    const batch = writeBuffer.splice(0, 500);
+    try {
+        const db = database.getDb();
+        const collection = db.collection('inboundRequests');
+        await collection.insertMany(batch);
+    } catch (err) {
+        console.error("Failed to flush request buffer:", err);
+    }
+}, 1000);
+
+const ipRequestCache = new Map();
+
+// Clean cache every 5 seconds
+setInterval(() => {
+    ipRequestCache.clear();
+}, 5000);
+
+
+
+
 app.get('/stats', async (req, res) => {
     try {
         const db = database.getDb();
@@ -271,43 +299,35 @@ app.use(async (req, res, next) => {
     let blocked = false;
 
     if (experimentVars?.ai && ip) {
-        try {
-            const ipRequests = await database.get('inboundRequests', {
+        const ipStats = ipRequestCache.get(ip) || [];
+        ipStats.push(now);
+        ipRequestCache.set(ip, ipStats);
+
+        const recent = ipStats.filter(ts => ts > now - 5000);
+
+        if (recent.length >= 5) {
+            blocked = true;
+
+            writeBuffer.push({
+                id: crypto.randomUUID(),
+                date: now,
                 deviceIp: ip,
-                date: { $gte: now - 5 * 1000 },
+                size: parseInt(req.headers['content-length'] || 0),
+                blocked,
             });
 
-            if (ipRequests.length >= 5) {
-                console.log("[AI] Blocking IP:", ip);
-                blocked = true;
-
-                await database.insert('inboundRequests', {
-                    id: crypto.randomUUID(),
-                    date: now,
-                    deviceIp: ip,
-                    size: parseInt(req.headers['content-length'] || 0),
-                    blocked,
-                });
-
-                return res.sendStatus(429); // Too Many Requests
-            }
-        } catch (err) {
-            console.error("[DB] Error in AI check:", err);
+            return res.sendStatus(429); // Too Many Requests
         }
     }
 
-    // Not blocked — log and continue
-    try {
-        await database.insert('inboundRequests', {
-            id: crypto.randomUUID(),
-            date: now,
-            deviceIp: ip,
-            size: parseInt(req.headers['content-length'] || 0),
-            blocked,
-        });
-    } catch (err) {
-        console.error("[DB] Failed to log request:", err);
-    }
+    // Not blocked, log and continue
+    writeBuffer.push({
+        id: crypto.randomUUID(),
+        date: now,
+        deviceIp: ip,
+        size: parseInt(req.headers['content-length'] || 0),
+        blocked,
+    });
 
     next(); // continue to proxy
 });

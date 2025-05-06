@@ -6,7 +6,7 @@ import { getIp, getAmountRequests, doAttack, getRequestsGoneThrough, getMinReq }
 const Main = () => {
     const [amountRequests, setAmountRequests] = useState(getAmountRequests());
     const [requestsGoneTrough, setRequestsGoneThrough] = useState(getRequestsGoneThrough());
-    const [delay, setDelay] = useState(0.5);
+    const [delay, setDelay] = useState(2);
     const [isAttacking, setIsAttacking] = useState(false);
     const [minReqSpeed, setMinReqSpeed] = useState(2);
 

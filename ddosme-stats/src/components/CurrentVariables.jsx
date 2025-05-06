@@ -36,16 +36,6 @@ const CurrentVariables = ({ stats }) => {
                         <h2 className='text-3xl font-bold text-red-800'>Gestoppt</h2>
                     </div>
                 }
-                {stats?.experimentVars?.autoReq &&
-                    <div className='bg-green-600/10 border-[1px] border-green-600 rounded-2xl p-2 text-center'>
-                        <h2 className='text-3xl font-bold text-green-800'>Auto Req</h2>
-                    </div>
-                }
-                {!stats?.experimentVars?.autoReq &&
-                    <div className='bg-red-600/10 border-[1px] border-red-600 rounded-2xl p-2 text-center'>
-                        <h2 className='text-3xl font-bold text-red-800'>Auto Req</h2>
-                    </div>
-                }
             </div>
             <div className='relative flex justify-center items-center'>
                 {stats?.experimentVars?.ai &&

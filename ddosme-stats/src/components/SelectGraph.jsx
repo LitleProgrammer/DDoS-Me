@@ -10,7 +10,6 @@ const SelectGraph = ({ setGraph, graph }) => {
                 <div className='flex flex-col gap-2 items-center justify-center'>
                     <Button text='Start' onClick={() => startExperiment()} col='red' />
                     <Button text='Stopp' onClick={() => stopExperiment()} col='red' />
-                    <Button text='Toggle auto requests' onClick={() => toggleAutoReq()} col='red' />
                     <Button text='Toggle AI' onClick={() => toggleAI()} col='red' />
                 </div>
             </div>
